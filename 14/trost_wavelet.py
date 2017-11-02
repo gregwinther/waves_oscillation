@@ -89,5 +89,5 @@ WLdiagram3 = interpolate.griddata((x1, x2), newarr.ravel(), (xx, yy),
 
 plt.imshow(WLdiagram3, extent = [min(tP), max(tP),\
         np.log10(min(f_used)), np.log10(max(f_used))],
-        aspect = 'auto', cmap = 'plasma')
+        aspect = 'auto', cmap="jet")
 plt.show()

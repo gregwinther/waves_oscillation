@@ -1,7 +1,7 @@
 '''
 This program shows an example of how to make an
 animation of a wave in python. In order to save the
-animation some extra encoding packages are needed. 
+animation some extra encoding packages are needed.
 These depend on the operating system.
 
 Sebastian G. Winther-Larsen (2017)
@@ -38,6 +38,6 @@ anim = animation.FuncAnimation(fig, animate, init_func=init, frames=200,\
                                 interval=20, blit=True)
 
 # Save animation
-anim.save("wave_animation.mp4", fps=30)
+#anim.save("wave_animation.mp4", fps=30)
 
 plt.show()

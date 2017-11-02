@@ -102,7 +102,7 @@ if __name__ == '__main__':
     # -1: Normal dispersion
     #  0: No dispersion
     # +1: Anomalous dispersion
-    dispersion = -1
+    dispersion = 1
 
     # Creating a spatial wave packet
     N = 4000

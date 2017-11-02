@@ -9,7 +9,7 @@ external force only works a given time.
 Sebastian G. Winther-Larsen (2017)
 '''
 
-def forced_oscillation(y, v, t, parameters):
+def forced_oscillation(y, v, t, param):
 
     if t < param["end"]:
         dvdt = - param["A"]*v - param["B"]*np.cos(param["D"]*t)
