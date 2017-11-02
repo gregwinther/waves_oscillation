@@ -12,7 +12,7 @@ phase = np.zeros(N) # Empty array for phase values
 
 # Phase computation
 
-phase[1] = 0.0
+phase[0] = 0.0
 
 for i in range(N-1):
     phase[i+1] = phase[i] + omega_b * delta_t*(1.0 + A*np.sin(omega_t*t[i]))
