@@ -10,12 +10,12 @@ from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 
 # Making spatial wave packet
-def phase_group_wavepacket(z, x_max, x_lambda, x_sigma):
+def phase_group_wavepacket(N, x_max, x_lambda, x_sigma):
 
     x = np.linspace(0, x_max * (N - 1) / N, N)
     x_center = x_max / 8
     x_freq = 1/ x_lambda
-    y = np.cos((x - x_center) * np.pi * x_freq)
+    y = np.cos((x - x_center) * 2*np.pi * x_freq)
     convol = np.exp(-((x - x_center) / x_sigma) * ((x - x_center) / x_sigma))
     z = y * convol
     return x, z
@@ -41,60 +41,115 @@ def phase_group_omega(i_min, i_max, k, dispersion):
     # Creating dictionary int the range of i_min and i_max
     omega = dict.fromkeys(range(i_min, i_max))
 
+    vf_ref = 400
+    k_dom = (i_max - i_min)/2.0 + 1
+
     if (dispersion == -1):
-        delta_t = 0.015
-        omega_factor = 44
+        delta_t = 0.0070
         for i in omega:
-            omega[i] = omega_factor * np.sqrt(k[i])
+            omega[i] = vf_ref * 1.04 * np.sqrt(k[i]/k_dom)
 
     if (dispersion == 0):
-        delta_t = 0.015
-        omega_factor = 9.5
+        delta_t = 0.0070
         for i in omega:
-            omega[i] = omega_factor * k[i]
+            omega[i] = vf_ref * k[i] / k_dom
 
     if (dispersion == 1):
-        delta_t = 0.0065
-        omega_factor = 5.5
+        delta_t = 0.0070
         for i in omega:
-            omega[i] = omega_factor * (k[i]**1.5)
+            omega[i] = vf_ref * 1.1 * (k[i] / k_dom)**1.5
 
     return omega, delta_t
 
 def phase_group_wave(x, t, N, A, phase, k, omega, i_min, i_max):
 
     z_recon = np.zeros(N)
+
+    # Want one iteration if i_min == i_max
+    if i_min == i_max:
+        i = i_min
+        arg = k[i] * x - omega[i]*t + phase[i]
+        z_recon += A[i] * np.cos(arg)
+
     for i in range(i_min, i_max):
         arg = k[i] * x - omega[i]*t + phase[i]
         z_recon += A[i] * np.cos(arg)
 
     return z_recon
 
-def init():
-    return 0
+def animate(frame, data, lines, points, text):
 
-def animate(frame, data, line):
+    animate_wave(frame, data, lines)
+    animate_phase(frame, data, points)
+    animate_text(frame, data, text)
+
+def animate_phase(frame, data, points):
+
+    delta_t = data[1]
+    k       = data[5]
+    omega   = data[6]
+    i_min   = data[7]
+    i_max   = data[8]
+    x_max   = data[9]
+
+    t = delta_t * frame
+
+    i_mean = int(np.round((i_min + i_max) / 2))
+
+    x0 = x_max / 8.0
+    x_avt = x0 + t*omega[i_mean] / k[i_mean]
+
+    points.set_data([x0, x_avt], [0.25, 0.25])
+
+    return points,
+
+def animate_wave(frame, data, lines):
 
     # Unpacking data
     # data = [x, delta_t, N, A, phase, k, omega, i_min, i_max, x_max]
-    data[0] = x
-    data[1] = delta_t
-    data[2] = N
-    data[3] = A
-    data[4] = phase
-    data[5] = k
-    data[6] = omega
-    data[7] = i_min
-    data[8] = i_max
-    data[9] = x_max
+    x       = data[0]
+    delta_t = data[1]
+    N       = data[2]
+    A       = data[3]
+    phase   = data[4]
+    k       = data[5]
+    omega   = data[6]
+    i_min   = data[7]
+    i_max   = data[8]
+    x_max   = data[9]
 
-    # Computing wave at time t
+    i_mean = int(np.round(i_min + i_max) / 2)
     t = delta_t * frame
-    z_recon = phase_group_wave(x, t, N, A, phase, k, omega, i_min, i_max)
+    z_recon0 = phase_group_wave(x, t, N, A, phase, k, omega, i_mean, i_mean)
+    z_recon  = phase_group_wave(x, t, N, A, phase, k, omega, i_min, i_max)
 
-    line.set_data(x, z_recon)
-    return line,
+    lines[0][0].set_data(x, z_recon)
+    lines[1][0].set_data(x, 2.5*z_recon0)
+    return lines,
 
+def animate_text(frame, data, text):
+
+    delta_t = data[1]
+    k       = data[5]
+    omega   = data[6]
+    i_min   = data[7]
+    i_max   = data[8]
+    x_max   = data[9]
+
+    t = delta_t * frame
+
+    i_mean = int(np.round((i_min + i_max)/2))
+
+    x0 = x_max / 8.0
+    x_avt = x0 + t*omega[i_mean] / k[i_mean]
+
+    text[0].set_position((3.0, 0.8))
+    text[0].set_text("Time: {:<5.2f}".format(t))
+
+    text[1].set_position((3.0, 0.65))
+    text[1].set_text("x_ref: {:<5.2f}".format(x_avt))
+
+    return text
 
 if __name__ == '__main__':
 
@@ -102,7 +157,7 @@ if __name__ == '__main__':
     # -1: Normal dispersion
     #  0: No dispersion
     # +1: Anomalous dispersion
-    dispersion = 1
+    dispersion = -1
 
     # Creating a spatial wave packet
     N = 4000
@@ -110,6 +165,8 @@ if __name__ == '__main__':
     x_lambda = 1
     x_sigma = 2
     x, z = phase_group_wavepacket(N, x_max, x_lambda, x_sigma)
+    plt.plot(x,z)
+    plt.show()
 
     # Spatial frequency analysis
     A, phase, k = phase_group_fft(z, N, x_max)
@@ -123,7 +180,9 @@ if __name__ == '__main__':
 
     # Figure to plot on
     fig = plt.figure()
-    line, = plt.plot([])
+    lines = (plt.plot([]), plt.plot([]))
+    points, = plt.plot([], 'rx')
+    text = [plt.text(0, 0, ""), plt.text(0, 0, "")]
     plt.xlim(0, x_max)
     plt.ylim(-1.04, 1.04)
     if dispersion == -1:
@@ -135,10 +194,10 @@ if __name__ == '__main__':
 
     # Animation arguments
     data = [x, delta_t, N, A, phase, k, omega, i_min, i_max, x_max]
-    ani_args = (data, line)
+    ani_args = (data, lines, points, text)
 
     # Animate!
-    ani = animation.FuncAnimation(fig, animate, frames=1200, init_func=None,
+    ani = animation.FuncAnimation(fig, animate, frames=200, init_func=None,
                     interval=20, fargs=ani_args)
 
     # Show figure
