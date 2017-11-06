@@ -1,0 +1,20 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{hyperref}
+
+\begin{document}
+
+\section*{A note on Python and packages}
+
+The Python examples in this book are all written in Python 3.6.1 and employs the \lstinline|SciPy| (Scientific Python) ecosystem for scientific computing, mainly \lstinline|pyplot| from \lstinline|matplotlib| for plotting and \lstinline|NumPy| (Numerical Python) for handling of arrays. The easiest way to obtain these libraries is by installing Anaconda\footnote{\url{www.anaconda.com/download}}. Anaconda, in addition to being a Python distribution on its own, includes all of the most popular data science, visualization and machine learning tools for Python.
+
+For a few other tasks, like sound processing, additional libraries not included in the core Anaconda package are used. These are easy to install through the Anaconda graphical user interface or by a command line argument using \lstinline|pip|, the PyPA\footnote{Python Packaging Authority} recommended tool for installing Python packages. For example,
+
+\begin{lstlisting}
+pip install sounddevice
+\end{lstlisting}
+
+If you do not want to use Anaconda, you can install all the packages needed, including \lstinline|matplotlib| and \lstinline|NumPy|, with  \lstinline|pip|. \lstinline|pip| should already be installed if you're using Python $2>=2.7.9$ or Python $3>=3.4$, but should be upgraded. See \url{pip.pypa.io} for further details.
+
+\end{document}

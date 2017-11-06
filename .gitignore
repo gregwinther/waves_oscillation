@@ -1,6 +1,13 @@
 *.pdf
+!info.pdf
 *.mp4
 *.m
 *.dat
 *.wav
 *.DS_Store
+
+# latex
+*.aux
+*.log
+*.out
+*.gz
